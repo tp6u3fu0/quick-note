@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'self'">
+  <title>Quick Note 設定</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', sans-serif;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #89b4fa;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #a6adc8;
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
+    }
+
+    .label-hint {
+      font-size: 11px;
+      color: #585b70;
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 6px;
+      color: #cdd6f4;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: #89b4fa;
+    }
+
+    input::placeholder {
+      color: #585b70;
+    }
+
+    select option {
+      background: #313244;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #89b4fa;
+      cursor: pointer;
+    }
+
+    .checkbox-label {
+      font-size: 12px;
+      color: #cdd6f4;
+      cursor: pointer;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #313244;
+      margin: 18px 0;
+    }
+
+    .row-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    .status.success { color: #a6e3a1; }
+    .status.error   { color: #f38ba8; }
+
+    .btn-save {
+      padding: 7px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #89b4fa;
+      color: #1e1e2e;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-save:hover { background: #b4d0fe; }
+
+    .info-box {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: #6c7086;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .info-box a {
+      color: #89b4fa;
+      text-decoration: none;
+    }
+
+    .shortcut-input-wrapper {
+      position: relative;
+    }
+
+    #shortcut-display {
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 6px;
+      color: #cdd6f4;
+      font-size: 13px;
+      padding: 7px 10px;
+      cursor: pointer;
+      user-select: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    #shortcut-display.recording {
+      border-color: #f38ba8;
+      color: #f38ba8;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Quick Note 設定</h1>
+
+  <div class="form-group">
+    <label>Notion API Token <span class="label-hint">（Integration Token）</span></label>
+    <input type="password" id="notion-token" placeholder="secret_xxxxxxxxxxxx" autocomplete="off">
+    <div class="info-box">
+      前往 <a href="#" id="link-integrations">notion.so/my-integrations</a> 建立 Integration 並複製 Token。<br>
+      再到目標頁面 → 右上角「...」→「Connections」→ 加入你的 Integration。
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>存入方式</label>
+    <select id="save-mode">
+      <option value="page">附加到指定頁面內文</option>
+      <option value="database">新增資料庫條目</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>目標頁面 / 資料庫 ID <span class="label-hint">（從網址複製）</span></label>
+    <input type="text" id="notion-target" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <div class="info-box">
+      從 Notion 頁面 URL 取得 ID，例如：<br>
+      notion.so/My-Page-<strong style="color:#cdd6f4">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</strong>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="checkbox-row">
+      <input type="checkbox" id="add-timestamp" checked>
+      <label class="checkbox-label" for="add-timestamp">在筆記前加上時間戳 <span class="label-hint">（如 [2026-06-22 14:30]）</span></label>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="form-group">
+    <label>全域快捷鍵</label>
+    <button id="shortcut-display">Ctrl+Shift+N</button>
+    <div class="info-box" style="margin-top:6px">
+      點擊後按下想要的組合鍵來設定。Mac 需在「系統設定 → 隱私權與安全性 → 輔助使用」授權本程式。
+    </div>
+  </div>
+
+  <div class="row-actions">
+    <span class="status" id="status"></span>
+    <button class="btn-save" id="btn-save">儲存設定</button>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
