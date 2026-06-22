@@ -9,6 +9,7 @@ const store = new Store({
 let tray = null;
 let mainWindow = null;
 let settingsWindow = null;
+let isQuitting = false;
 
 const DEFAULT_SHORTCUT = 'Ctrl+Shift+N';
 
@@ -31,6 +32,7 @@ function createMainWindow() {
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   mainWindow.on('close', (e) => {
+    if (isQuitting) return;
     e.preventDefault();
     mainWindow.hide();
   });
@@ -123,6 +125,7 @@ function createTray() {
     {
       label: '結束',
       click: () => {
+        isQuitting = true;
         app.quit();
       }
     }
@@ -270,7 +273,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', (e) => {
-  e.preventDefault();
+  if (!isQuitting) e.preventDefault();
 });
 
 app.on('will-quit', () => {
